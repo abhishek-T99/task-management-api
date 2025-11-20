@@ -27,8 +27,6 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         email_username, _ = self.email.split("@")
-        if self.full_name == "" or self.full_name is None:
-            self.full_name = self.email
         if self.username == "" or self.username is None:
             self.username = email_username
         super(User, self).save(*args, **kwargs)

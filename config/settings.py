@@ -1,13 +1,13 @@
-import environ
 import os
 from pathlib import Path
 import logging
+from environ import Env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+env = Env()
+Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "rest_framework.authtoken",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
@@ -111,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
     {
-        "NAME": "user.validators.ComplexityValidator",
+        "NAME": "users.validators.ComplexityValidator",
     },
 ]
 
@@ -147,6 +148,12 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.TokenAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+}
+
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Token": {"type": "apiKey", "name": "Authorization", "in": "header"}
+    }
 }
 
 LOGGING = {
