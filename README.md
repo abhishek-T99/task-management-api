@@ -133,17 +133,6 @@ Starts:
 
 ---
 
-# Async PostgreSQL
-
-Uses asyncpg + SQLAlchemy Core for efficient async queries.
-
-Migrations with Alembic:
-```bash
-alembic upgrade head
-```
-
----
-
 # Authentication Endpoints
 | Endpoint | Method | Description |
 |----------|--------|-------------|
