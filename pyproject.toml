@@ -9,6 +9,7 @@ dependencies = [
     "django-cors-headers>=4.9.0",
     "django-environ>=0.12.0",
     "djangorestframework>=3.16.1",
+    "drf-yasg>=1.21.11",
     "pre-commit>=4.4.0",
     "psycopg[binary,pool]>=3.2.12",
 ]
