@@ -1,7 +1,9 @@
 from rest_framework.decorators import (
     api_view,
     permission_classes,
+    authentication_classes,
 )
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -76,3 +78,19 @@ def login_user(request):
 def get_current_user(request):
     serializer = UserRetrieveSerializer(request.user)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def logout(request):
+    try:
+        request.user.auth_token.delete()
+        return Response(
+            {"detail": "Successfully logged out."}, status=status.HTTP_200_OK
+        )
+    except AttributeError:
+        return Response(
+            {"detail": "No active token found for this user."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
