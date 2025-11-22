@@ -4,6 +4,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
 from django.db import connection
+from django_redis import get_redis_connection
 import os
 from datetime import datetime
 import psutil
@@ -37,6 +38,29 @@ def health_check(request):
         checks["database"] = {
             "status": "unhealthy",
             "details": f"Database connection failed: {str(e)}",
+        }
+        overall_status = "degraded"
+
+    try:
+        # Use Django cache to get Redis connection
+        redis_client = get_redis_connection("default")
+        redis_response = redis_client.ping()
+        if redis_response:
+            checks["redis"] = {
+                "status": "healthy",
+                "details": "Redis cache connection successful",
+            }
+        else:
+            checks["redis"] = {
+                "status": "unhealthy",
+                "details": "Redis ping failed",
+            }
+            overall_status = "degraded"
+    except Exception as e:
+        logger.error(f"Redis health check failed: {str(e)}")
+        checks["redis"] = {
+            "status": "unhealthy",
+            "details": f"Redis connection failed: {str(e)}",
         }
         overall_status = "degraded"
 

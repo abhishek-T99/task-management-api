@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import logging
 from environ import Env
+from config.redis import REDIS_CACHE_URL
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,11 +42,13 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "drf_yasg",
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -93,8 +96,41 @@ DATABASES = {
     }
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_CACHE_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "CONNECTION_POOL_CLASS": "redis.connection.ConnectionPool",
+            "SOCKET_CONNECT_TIMEOUT": 10,  # Seconds
+            "SOCKET_TIMEOUT": 10,
+            "CONNECTION_POOL_KWARGS": {
+                "max_connections": 100,
+                "retry_on_timeout": True,
+            },
+            "TIMEOUT": 60 * 20,  # 20 minutes
+        },
+    }
+}
+
 AUTH_USER_MODEL = "users.User"
 
+INTERNAL_IPS = [
+    "127.0.0.1",
+    "localhost",
+]
+
+DEBUG_TOOLBAR_CONFIG = {
+    "SHOW_COLLAPSED": True,
+    "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+}
+
+DEBUG_TOOLBAR_PANELS = [
+    "debug_toolbar.panels.cache.CachePanel",
+    "debug_toolbar.panels.sql.SQLPanel",
+    "debug_toolbar.panels.timer.TimerPanel",
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -172,20 +208,20 @@ LOGGING = {
     },
     "handlers": {
         "file": {
-            "level": "DEBUG",  # Changed to DEBUG to capture all levels
+            "level": "DEBUG",
             "class": "logging.FileHandler",
             "filename": os.path.join(BASE_DIR, "application.log"),
             "formatter": "verbose",
         },
         "console": {
-            "level": "DEBUG",  # Already DEBUG - good!
+            "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "simple",
         },
     },
     "root": {
         "handlers": ["console", "file"],
-        "level": "DEBUG",  # Changed from INFO to DEBUG
+        "level": "DEBUG",
     },
     "loggers": {
         "django": {
@@ -193,6 +229,5 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
-        # Remove the duplicate empty string loggers
     },
 }

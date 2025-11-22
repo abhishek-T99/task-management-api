@@ -16,6 +16,7 @@ from .serializers import (
 )
 from drf_yasg.utils import swagger_auto_schema
 from logging import getLogger
+from utils.cache import get_cached_response, set_cached_response, invalidate_cache
 
 logger = getLogger(__name__)
 
@@ -76,7 +77,11 @@ def login_user(request):
     ]
 )
 def get_current_user(request):
+    cached_user = get_cached_response(request, "current_user")
+    if cached_user:
+        return cached_user
     serializer = UserRetrieveSerializer(request.user)
+    set_cached_response(request, "current_user", Response(serializer.data))
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -85,6 +90,7 @@ def get_current_user(request):
 @permission_classes([IsAuthenticated])
 def logout(request):
     try:
+        invalidate_cache(request, "current_user")
         request.user.auth_token.delete()
         return Response(
             {"detail": "Successfully logged out."}, status=status.HTTP_200_OK
