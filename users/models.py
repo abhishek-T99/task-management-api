@@ -20,7 +20,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ["username"]
 
     def __str__(self):
-        return self.email
+        return f"{self.email}"
 
     def __unicode__(self):
         return self.username
