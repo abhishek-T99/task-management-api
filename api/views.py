@@ -1,4 +1,6 @@
 import logging
+from celery import current_app as celery_app
+from celery.exceptions import CeleryError
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import permission_classes
@@ -41,8 +43,8 @@ def health_check(request):
         }
         overall_status = "degraded"
 
+    # Redis Cache Check
     try:
-        # Use Django cache to get Redis connection
         redis_client = get_redis_connection("default")
         redis_response = redis_client.ping()
         if redis_response:
@@ -62,6 +64,25 @@ def health_check(request):
             "status": "unhealthy",
             "details": f"Redis connection failed: {str(e)}",
         }
+        overall_status = "degraded"
+
+    # Celery Health Check
+    try:
+        ping = celery_app.control.ping(timeout=1.0)
+        if ping:
+            checks["celery"] = {
+                "status": "healthy",
+                "details": "Celery worker detected",
+            }
+        else:
+            checks["celery"] = {
+                "status": "unhealthy",
+                "details": "No Celery workers responded",
+            }
+            overall_status = "degraded"
+    except CeleryError as e:
+        logger.error(f"Celery health check failed: {str(e)}")
+        checks["celery"] = {"status": "unhealthy", "details": str(e)}
         overall_status = "degraded"
 
     # System Resources
