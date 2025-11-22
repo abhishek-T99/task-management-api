@@ -17,6 +17,7 @@ from .serializers import (
 from drf_yasg.utils import swagger_auto_schema
 from logging import getLogger
 from utils.cache import get_cached_response, set_cached_response, invalidate_cache
+from .tasks import send_welcome_email
 
 logger = getLogger(__name__)
 
@@ -32,8 +33,15 @@ def register_user(request):
     serializer = UserRegisterSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
+
         # Create Token
         token, created = Token.objects.get_or_create(user=user)
+
+        # Send welcome email asynchronously
+        try:
+            send_welcome_email.delay(user.id)
+        except Exception:
+            logger.exception("Failed to enqueue welcome email task")
         return Response(
             UserRetrieveSerializer(user).data, status=status.HTTP_201_CREATED
         )

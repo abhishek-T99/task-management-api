@@ -16,13 +16,13 @@ echo "Connected to PostgreSQL!"
 
 # Apply database migrations
 echo "Applying database migrations..."
-python manage.py migrate
+uv run python manage.py migrate
 
 # Collect static files (only for production)
 if [ "$DJANGO_DEBUG" = "False" ]; then
   echo "Collecting static files..."
-  python manage.py collectstatic --noinput
+  uv run python manage.py collectstatic --noinput
 fi
 
 echo "Starting Django server..."
-exec python manage.py runserver
+exec uv run python manage.py runserver 0.0.0.0:8000

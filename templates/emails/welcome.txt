@@ -1,0 +1,8 @@
+Hi {{ user.full_name|default:user.email }},
+
+Welcome to Task Management API! We're glad to have you on board.
+
+You can log in using your email address. If you have any questions, reply to this email.
+
+Thanks,
+The Task Management Team
