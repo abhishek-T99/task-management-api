@@ -220,6 +220,12 @@ wheels = [
 ]
 
 [[package]]
+name = "environ"
+version = "1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/29/e4/6f448fcce1649a1f0f265e20bd88b7c8ff36e265657604b920240045928b/environ-1.0.tar.gz", hash = "sha256:4df7f1dfeb7d1c988d2e19a8bd5d547a526e0400aeb35adf732032472f35dcb0", size = 2628, upload-time = "2007-08-06T01:55:14Z" }
+
+[[package]]
 name = "filelock"
 version = "3.20.0"
 source = { registry = "https://pypi.org/simple" }
@@ -516,6 +522,7 @@ dependencies = [
     { name = "django-redis" },
     { name = "djangorestframework" },
     { name = "drf-yasg" },
+    { name = "environ" },
     { name = "pre-commit" },
     { name = "psutil" },
     { name = "psycopg", extra = ["binary", "pool"] },
@@ -532,6 +539,7 @@ requires-dist = [
     { name = "django-redis", specifier = ">=6.0.0" },
     { name = "djangorestframework", specifier = ">=3.16.1" },
     { name = "drf-yasg", specifier = ">=1.21.11" },
+    { name = "environ", specifier = ">=1.0" },
     { name = "pre-commit", specifier = ">=4.4.0" },
     { name = "psutil", specifier = ">=7.1.3" },
     { name = "psycopg", extras = ["binary", "pool"], specifier = ">=3.2.12" },
