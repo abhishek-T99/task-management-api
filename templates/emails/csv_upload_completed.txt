@@ -1,0 +1,44 @@
+Hello {{ user.get_full_name|default:user.username }},
+
+Good news — your CSV upload "{{ upload.original_filename }}" has finished processing.
+
+Summary
+-------
+- Total rows expected: {{ total_rows }}
+- Rows processed: {{ processed_rows }}
+- Started at: {{ upload.started_at }}
+- Completed at: {{ upload.completed_at }}
+- Duration: {{ duration }}
+- Errors: {{ errors|length }}
+
+Columns (sample)
+----------------
+{% if columns %}
+{% for col in columns %}- {{ col }}
+{% endfor %}
+{% else %}
+No columns detected.
+{% endif %}
+
+Sample row
+----------
+{% if sample_row %}
+{% for k,v in sample_row.items %}{{ k }}: {{ v }}
+{% endfor %}
+{% else %}
+No sample row available.
+{% endif %}
+
+Additional metadata
+-------------------
+{% if metadata %}
+{% for k,v in metadata.items %}{{ k }}: {{ v }}
+{% endfor %}
+{% else %}
+No additional metadata.
+{% endif %}
+
+If you have questions, reply to this email.
+
+Thanks,
+The Task Management Team

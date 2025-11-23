@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     # Local apps
     "users",
     "tasks",
+    "csv_processor",
     # Third-party apps
     "corsheaders",
     "rest_framework",
@@ -102,8 +103,7 @@ CACHES = {
         "LOCATION": REDIS_CACHE_URL,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "CONNECTION_POOL_CLASS": "redis.connection.ConnectionPool",
-            "SOCKET_CONNECT_TIMEOUT": 10,  # Seconds
+            "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
             "SOCKET_TIMEOUT": 10,
             "CONNECTION_POOL_KWARGS": {
                 "max_connections": 100,
