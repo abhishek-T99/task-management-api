@@ -12,6 +12,7 @@ This project is optimized for **performance**, **scalability**, **security**, an
 ### **Authentication**
 - Token-based Authentication (no Django sessions)
 - User Registration + Login endpoints
+- Sends an email notification after user registration
 
 ### **Tasks Module**
 - Create / View / Update / Delete tasks
@@ -51,6 +52,7 @@ This project is optimized for **performance**, **scalability**, **security**, an
 - `csv_processor/` — models, views, Celery tasks, pagination, and serializers for CSV ingestion and querying
 - `config/` — Django settings, Celery app, and ASGI/WGI
 - `utils/` — helper utilities such as caching helpers
+- `scripts/` — scripts for application entrypoint
 
 ---
 
@@ -125,22 +127,28 @@ Place secrets in environment variables. Key settings found in `config/settings.p
 ## Key endpoints (summary)
 
 Authentication
-- `POST /api/auth/register/` — register a user
-- `POST /api/auth/login/` — login and receive token
+- `POST /api/v1/auth/user/register/` — register a user
+- `POST /api/v1/auth/user/login/` — login and receive token
+- `GET /api/v1/auth/user/me/` — get currently logged in user
+- `POST /api/v1/auth/user/logout/` — revoke token and logout user
 
 Tasks
-- `GET /api/tasks/` — list tasks (supports caching + pagination)
-- `POST /api/tasks/` — create
-- `PUT /api/tasks/<id>/` — update
-- `DELETE /api/tasks/<id>/` — delete
-- `POST /api/tasks/<id>/complete/` — mark complete & enqueue welcome/completion emails
+- `GET /api/v1/tasks/` — list tasks (supports caching + pagination)
+- `POST /api/v1/tasks/` — create
+- `PUT /api/v1/tasks/<id>/` — update
+- `DELETE /api/v1/tasks/<id>/` — delete
+- `POST /api/v1/tasks/<id>/complete/` — mark complete & enque completion emails
+
+Health-Check
+- `GET /api/v1/health-check/` — services health check (db + celery + redis)
 
 CSV Processing
-- `POST /api/csv/uploads/` — upload CSV
-- `GET /api/csv/uploads/` — list uploads
-- `GET /api/csv/uploads/<upload_id>/` — details + status
-- `GET /api/csv/uploads/<upload_id>/progress/` — progress
-- `GET /api/csv/uploads/<upload_id>/data/` — rows listing with filtering & pagination
+- `POST /api/v1/csv-data/uploads/` — upload CSV
+- `GET /api/v1/csv-data/uploads/` — list uploads
+- `GET /api/v1/csv-data/uploads/<upload_id>/` — details + status
+- `GET /api/v1/csv-data/uploads/<upload_id>/progress/` — progress
+- `GET /api/v1/csv-data/uploads/<upload_id>/data/` — rows listing with filtering & pagination
+- `DELETE /api/v1/csv-data/uploads/<upload_id>/delete/` - deletes csv record from database and media folder
 
 For exact query-string parameters (search, filters, columns, sort_by, page, page_size, nocache) see `csv_processor/views.py` and `csv_processor/pagination.py`.
 

@@ -1,0 +1,14 @@
+Hi {{ user.get_full_name|default:user.email }},
+
+Good news — the task "{{ task.title }}" has been marked as completed.
+
+Task details
+------------
+- Title: {{ task.title }}
+- Description: {{ task.description|default:"(no description)" }}
+- Completed at: {{ task.updated_at }}
+
+If you did not expect this change or need help, reply to this email.
+
+Thanks,
+The Task Management Team

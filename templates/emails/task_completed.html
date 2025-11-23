@@ -1,0 +1,18 @@
+<html>
+  <body>
+    <p>Hi {{ user.get_full_name|default:user.email }},</p>
+
+    <p>Good news — the task <strong>{{ task.title }}</strong> has been marked as completed.</p>
+
+    <h4>Task details</h4>
+    <ul>
+      <li><strong>Title:</strong> {{ task.title }}</li>
+      <li><strong>Description:</strong> {{ task.description|default:"(no description)" }}</li>
+      <li><strong>Completed at:</strong> {{ task.updated_at }}</li>
+    </ul>
+
+    <p>If you did not expect this change or need help, reply to this email.</p>
+
+    <p>Thanks,<br/>The Task Management Team</p>
+  </body>
+</html>
