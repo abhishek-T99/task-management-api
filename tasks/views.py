@@ -9,6 +9,7 @@ from utils.cache import get_cached_response, set_cached_response, invalidate_cac
 from .models import Task
 from .serializers import TaskSerializer
 from .pagination import TaskPagination
+from .tasks import send_task_completed_email
 
 
 priority_param = openapi.Parameter(
@@ -72,6 +73,13 @@ def task_list_create(request):
         serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
             task = serializer.save(user=user)
+            # If the task was created already completed, send completion email
+            try:
+                if getattr(task, "status", "") == "completed":
+                    send_task_completed_email.delay(str(task.id))
+            except Exception:
+                # Do not block task creation for email failures; celery will log
+                pass
             response_serializer = TaskSerializer(task)
             # Invalidate list cache for this user so new task appears
             invalidate_cache(request, "tasks_list")
@@ -143,9 +151,19 @@ def task_detail(request, pk):
         return response
 
     elif request.method == "PATCH":
-        serializer = TaskSerializer(task, data=request.data, partial=request.method)
+        # Preserve the previous status to detect transitions to 'completed'
+        previous_status = task.status
+        serializer = TaskSerializer(task, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            # If status transitioned to completed, enqueue email
+            try:
+                new_status = getattr(serializer.instance, "status", None)
+                if previous_status != "completed" and new_status == "completed":
+                    send_task_completed_email.delay(str(task.id))
+            except Exception:
+                # Non-fatal; worker will surface issues
+                pass
             # Invalidate cache for this task and the user's list
             invalidate_cache(request, f"task_detail:{pk}")
             invalidate_cache(request, "tasks_list")

@@ -43,13 +43,14 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "drf_yasg",
-    "debug_toolbar",
+    # "debug_toolbar",
 ]
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    # "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -116,21 +117,22 @@ CACHES = {
 
 AUTH_USER_MODEL = "users.User"
 
-INTERNAL_IPS = [
-    "127.0.0.1",
-    "localhost",
-]
+# INTERNAL_IPS = [
+#     "127.0.0.1",
+#     "localhost",
+#     "0.0.0.0",
+# ]
 
-DEBUG_TOOLBAR_CONFIG = {
-    "SHOW_COLLAPSED": True,
-    "SHOW_TOOLBAR_CALLBACK": lambda request: True,
-}
+# DEBUG_TOOLBAR_CONFIG = {
+#     "SHOW_COLLAPSED": True,
+#     "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+# }
 
-DEBUG_TOOLBAR_PANELS = [
-    "debug_toolbar.panels.cache.CachePanel",
-    "debug_toolbar.panels.sql.SQLPanel",
-    "debug_toolbar.panels.timer.TimerPanel",
-]
+# DEBUG_TOOLBAR_PANELS = [
+#     "debug_toolbar.panels.cache.CachePanel",
+#     "debug_toolbar.panels.sql.SQLPanel",
+#     "debug_toolbar.panels.timer.TimerPanel",
+# ]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -169,7 +171,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+# URL to use when referring to static files
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "staticfiles_src")]
+
+# Use WhiteNoise storage so collected files are compressed and cache-friendly.
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 # File upload
 MEDIA_URL = "/media/"
