@@ -16,24 +16,28 @@ urlpatterns = [
     path("tasks/", task_views.task_list_create, name="task_list_create"),
     path("tasks/<uuid:pk>/", task_views.task_detail, name="task_detail"),
     # CSV Processor URLs
-    path("uploads/", csv_views.csv_upload_list_create, name="csv-upload-list-create"),
     path(
-        "uploads/<uuid:upload_id>/",
+        "csv-data/uploads/",
+        csv_views.csv_upload_list_create,
+        name="csv-upload-list-create",
+    ),
+    path(
+        "csv-data/uploads/<uuid:upload_id>/",
         csv_views.csv_upload_detail,
         name="csv-upload-detail",
     ),
     path(
-        "uploads/<uuid:upload_id>/progress/",
+        "csv-data/uploads/<uuid:upload_id>/progress/",
         csv_views.csv_upload_progress,
         name="csv-upload-progress",
     ),
     path(
-        "uploads/<uuid:upload_id>/data/",
+        "csv-data/uploads/<uuid:upload_id>/data/",
         csv_views.csv_upload_data,
         name="csv-upload-data",
     ),
     path(
-        "uploads/<uuid:upload_id>/delete/",
+        "csv-data/uploads/<uuid:upload_id>/delete/",
         csv_views.csv_upload_delete,
         name="csv-upload-delete",
     ),

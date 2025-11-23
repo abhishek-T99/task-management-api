@@ -46,7 +46,7 @@ class CSVUploadSerializer(serializers.ModelSerializer):
             "started_at",
             "completed_at",
             "errors",
-            "file",  # Include file field
+            "file",
         ]
         read_only_fields = [
             "id",

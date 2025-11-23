@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404
 from django.db import connection
 from django.db.models import Q
 import json
+import logging
 
 from .models import CSVUpload, CSVData
 from .serializers import CSVUploadSerializer, CSVUploadCreateSerializer
@@ -21,6 +22,8 @@ from utils.cache import (
     invalidate_pattern,
 )
 from .pagination import CSVPagination, CSVStreamingPagination
+
+logger = logging.getLogger(__name__)
 
 
 @swagger_auto_schema(
