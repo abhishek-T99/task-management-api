@@ -1,5 +1,5 @@
 # Task Management REST API
-**Django + DRF (Function-Based Views Only) + PostgreSQL (Async) + Redis + Celery + Docker + uv**
+**Django + DRF (Function-Based Views Only) + PostgreSQL (psycopg2) + Redis + Celery + Docker + uv**
 
 A production-grade, scalable, and containerized **Task Management REST API**, built with **Django REST Framework**, **function-based views**, **token authentication**, **PostgreSQL**, **Redis caching**, **Celery for background tasks**, **async CSV ingestion (1M+ records)**, and **email notifications**.
 
@@ -12,7 +12,7 @@ This project is optimized for **performance**, **scalability**, **security**, an
 ### **Authentication**
 - Token-based Authentication (no Django sessions)
 - User Registration + Login endpoints
-- Token expiry & security best practices
+- Sends an email notification after user registration
 
 ### **Tasks Module**
 - Create / View / Update / Delete tasks
@@ -26,137 +26,113 @@ This project is optimized for **performance**, **scalability**, **security**, an
 - Bulk insert into **PostgreSQL** using async Django ORM
 - Handles **1 million+ records**
 - API to check CSV processing status
-- API to filter 1M+ records efficiently (uses PostgreSQL indexes + subqueries)
+- API to filter 1M+ records efficiently
 
 ### **Caching & Performance**
 - Redis caching for GET endpoints
 - Cache invalidation strategies
 - Async PostgreSQL connections
-- Optimized QuerySets + subqueries for large data filtering
-- Database monitoring using `pg_stat_statements`
+- Optimized QuerySets for large data filtering
 
 ### **Architecture & Tooling**
-- Function-based views only (no CBVs or ViewSets)
-- Clean project structure (separation of concerns)
-- Environment-based configuration (dev/prod)
+- Function-based views only
 - uv for Python package and environment management
 - Docker + docker-compose (Django, PostgreSQL, Redis, Celery worker)
 - Git branching strategy with conventional commits
 - Pre-commit hooks + linters + formatters
-- Swagger / Postman API documentation
-- Proper logging, error handling, and security hardening
+- Swagger API documentation
+- Logging and error handling
 
 ---
 
-# Project Structure
-```
-project/
-│
-├── src/
-│   ├── config/
-│   │   ├── settings/
-│   │   ├── urls.py
-│   │   └── celery.py
-│   │
-│   ├── users/
-│   ├── tasks/
-│   ├── common/
-│   ├── email_service/
-│   ├── celery_worker/
-│   └── manage.py
-│
-├── docker/
-├── docker-compose.yml
-├── pyproject.toml
-├── uv.lock
-├── README.md
-└── .env.example
-```
+### High-level components
+
+- `users/` — user registration, authentication, and email tasks
+- `tasks/` — task management API (create/list/update/delete, complete)
+- `csv_processor/` — models, views, Celery tasks, pagination, and serializers for CSV ingestion and querying
+- `config/` — Django settings, Celery app, and ASGI/WGI
+- `utils/` — helper utilities such as caching helpers
+- `scripts/` — scripts for application entrypoint
 
 ---
 
-# Tech Stack
-| Component | Technology |
-|----------|------------|
-| Backend | Django, Django REST Framework |
-| Auth | Token Authentication |
-| Database | PostgreSQL (async) |
-| ORM | Django ORM |
-| Cache | Redis |
-| Background Tasks | Celery + Redis broker |
-| Package Manager | uv |
-| API Docs | Swagger / Postman |
-| Containers | Docker + docker-compose |
-| DB Versioning | Alembic |
-| Linters | ruff / black |
-| Rate Limiter | Django-ratelimit or custom middleware |
+## Quickstart (Docker)
 
----
+1. Copy the environment file:
 
-# Installation & Setup
-
-## Clone the repository
-```bash
-git clone <repo_url>
-cd project
-```
-
-## Environment variables
 ```bash
 cp .env.example .env
 ```
 
-## Create virtual environment using uv
+2. Build and start services:
+
 ```bash
-uv venv --python 3.12
-source .venv/bin/activate
+docker compose up --build -d
 ```
 
-## Install dependencies
-```bash
-uv sync
-```
+Notes
+- Change `.env` values to match your infrastructure (Postgres / Redis / SMTP).
 
 ---
 
-# Docker Setup
+## Configuration
 
-## Build and run everything:
-```bash
-docker compose up --build
-```
-Starts:
-- Django API
-- PostgreSQL
-- Redis
-- Celery Worker
+Place secrets in environment variables. Key settings found in `config/settings.py` include:
+
+- `DATABASE_URL` — Postgres connection string
+- `REDIS_URL` — Redis for cache and Celery broker
+- `EMAIL_*` settings — SMTP host, port, user, password
+- `DEFAULT_CACHE_TTL` — default TTL (in seconds) used by caching helpers
 
 ---
 
-# Authentication Endpoints
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/auth/register/` | POST | Register user |
-| `/api/auth/login/` | POST | Login & receive token |
+## Key endpoints (summary)
+
+Authentication
+- `POST /api/v1/auth/user/register/` — register a user
+- `POST /api/v1/auth/user/login/` — login and receive token
+- `GET /api/v1/auth/user/me/` — get currently logged in user
+- `POST /api/v1/auth/user/logout/` — revoke token and logout user
+
+Tasks
+- `GET /api/v1/tasks/` — list tasks (supports caching + pagination)
+- `POST /api/v1/tasks/` — create
+- `PUT /api/v1/tasks/<id>/` — update
+- `DELETE /api/v1/tasks/<id>/` — delete
+- `POST /api/v1/tasks/<id>/complete/` — mark complete & enque completion emails
+
+Health-Check
+- `GET /api/v1/health-check/` — services health check (db + celery + redis)
+
+CSV Processing
+- `POST /api/v1/csv-data/uploads/` — upload CSV
+- `GET /api/v1/csv-data/uploads/` — list uploads
+- `GET /api/v1/csv-data/uploads/<upload_id>/` — details + status
+- `GET /api/v1/csv-data/uploads/<upload_id>/progress/` — progress
+- `GET /api/v1/csv-data/uploads/<upload_id>/data/` — rows listing with filtering & pagination
+- `DELETE /api/v1/csv-data/uploads/<upload_id>/delete/` - deletes csv record from database and media folder
+
+For exact query-string parameters (search, filters, columns, sort_by, page, page_size, nocache) see `csv_processor/views.py` and `csv_processor/pagination.py`.
 
 ---
 
-# Task Endpoints
-| Endpoint | Method | Description |
-|----------|---------|-------------|
-| `/api/tasks/` | GET | List tasks (cached) |
-| `/api/tasks/` | POST | Create task |
-| `/api/tasks/<id>/` | PUT | Update task |
-| `/api/tasks/<id>/` | DELETE | Delete task |
-| `/api/tasks/<id>/complete/` | POST | Mark complete → async email |
+## CSV pipeline (how it works)
+
+1. File is uploaded and saved in `media/csv_uploads/` and a `CSVUpload` record is created.
+2. A Celery task is enqueued with the upload ID.
+3. The worker reads the CSV in chunks (pandas), normalizes header names to snake_case, converts rows to dictionaries, and bulk-inserts them into `CSVData.data` (JSONField) in batches.
+4. Progress is written to `CSVUpload.processed_rows`; key metadata and page snapshots may be cached.
+5. On completion, an email is sent to the uploader with processing statistics.
+
+Design notes
+- Dynamic JSON storage makes the system flexible for arbitrary CSV schemas
+- Header normalization ensures consistent keys; the original header-to-key mapping can be persisted to `CSVUpload.metadata` if you want to preserve raw names.
 
 ---
 
-# CSV Processing Endpoints
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/csv/upload/` | POST | Upload CSV (400MB) |
-| `/api/csv/status/<task_id>/` | GET | Check Celery task status |
-| `/api/records/filter/` | GET | Efficient filtering on 1M+ rows |
+## Caching & pagination
+
+- The `utils/cache.py` module provides request-aware response caching (per-user + path + query) and generic key/value helpers for the CSV pagination and counts.
+- `csv_processor/pagination.py` contains three pagination styles: page-based, streaming, and cursor-based, designed for large datasets. Page responses and counts are cached for short TTLs for performance.
 
 ---

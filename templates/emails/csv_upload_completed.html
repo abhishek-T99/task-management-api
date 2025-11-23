@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CSV Upload Completed</title>
+    <style>
+      body { font-family: Arial, sans-serif; color: #333; }
+      .container { max-width: 700px; margin: 0 auto; padding: 20px; }
+      .card { border: 1px solid #e1e1e1; border-radius: 6px; padding: 16px; }
+      table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+      th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eee; }
+      .muted { color: #666; font-size: 0.9em; }
+      .footer { margin-top: 20px; font-size: 0.85em; color: #888; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h2>CSV Upload Completed</h2>
+        <p>Hello {{ user.get_full_name|default:user.username }},</p>
+        <p>Your CSV file <strong>{{ upload.original_filename }}</strong> has finished processing.</p>
+
+        <h3>Summary</h3>
+        <table>
+          <tr><th>Expected rows</th><td>{{ total_rows }}</td></tr>
+          <tr><th>Rows processed</th><td>{{ processed_rows }}</td></tr>
+          <tr><th>Started at</th><td class="muted">{{ upload.started_at }}</td></tr>
+          <tr><th>Completed at</th><td class="muted">{{ upload.completed_at }}</td></tr>
+          <tr><th>Duration</th><td class="muted">{{ duration }}</td></tr>
+          <tr><th>Errors</th><td>{{ errors|length }}</td></tr>
+        </table>
+
+        <h3>Columns (sample)</h3>
+        {% if columns %}
+          <ul>
+          {% for c in columns %}
+            <li>{{ c }}</li>
+          {% endfor %}
+          </ul>
+        {% else %}
+          <p class="muted">No columns detected.</p>
+        {% endif %}
+
+        <h3>Sample Row</h3>
+        {% if sample_row %}
+          <table>
+            <thead>
+              <tr><th>Field</th><th>Value</th></tr>
+            </thead>
+            <tbody>
+            {% for k, v in sample_row.items %}
+              <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="muted">No sample row available.</p>
+        {% endif %}
+
+        {% if metadata %}
+          <h3>Metadata</h3>
+          <ul>
+          {% for k, v in metadata.items %}
+            <li><strong>{{ k }}:</strong> {{ v }}</li>
+          {% endfor %}
+          </ul>
+        {% endif %}
+
+        <p class="footer">If you didn't expect this email or need help, reply to this message.</p>
+      </div>
+    </div>
+  </body>
+</html>
