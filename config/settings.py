@@ -174,7 +174,6 @@ USE_TZ = True
 # URL to use when referring to static files
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "staticfiles_src")]
 
 # Use WhiteNoise storage so collected files are compressed and cache-friendly.
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"

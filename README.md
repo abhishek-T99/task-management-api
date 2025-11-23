@@ -88,6 +88,12 @@ Place secrets in environment variables. Key settings found in `config/settings.p
 
 ## Key endpoints (summary)
 
+Swagger Documentation
+
+```bash
+http://127.0.0.1:8000/api/docs/
+```
+
 Authentication
 - `POST /api/v1/auth/user/register/` — register a user
 - `POST /api/v1/auth/user/login/` — login and receive token
