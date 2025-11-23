@@ -8,8 +8,8 @@ from django.conf import settings
 from .models import User
 
 
-@shared_task
-def send_welcome_email(user_id: UUID) -> None:
+@shared_task(bind=True)
+def send_welcome_email(self, user_id: UUID) -> None:
     try:
         user = User.objects.get(pk=user_id)
     except User.DoesNotExist:
