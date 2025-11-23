@@ -29,8 +29,8 @@ RUN uv sync
 # Copy the rest of the project
 COPY . /app
 
-# Install pre-commit hooks
-RUN uv run pre-commit install-hooks
+# Make celery worker script executable
+RUN chmod +x /app/scripts/celery_worker.sh
 
 # Make entrypoint executable
 RUN chmod +x /app/scripts/entrypoint.sh
