@@ -32,5 +32,21 @@ if [ "$DJANGO_DEBUG" = "False" ]; then
   uv run python manage.py collectstatic --noinput
 fi
 
+# Start the Django server
 echo "Starting Django server..."
-exec uv run python manage.py runserver 0.0.0.0:8000
+if [ "$DJANGO_DEBUG" = "False" ]; then
+  echo "Starting Gunicorn (Uvicorn workers) for production..."
+  # Gunicorn with Uvicorn workers is a lightweight, production-ready ASGI server.
+  GUNICORN_WORKERS=${GUNICORN_WORKERS:-3}
+  GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT:-120}
+
+  exec uv run gunicorn config.asgi:application \
+    --bind 0.0.0.0:8000 \
+    --workers "$GUNICORN_WORKERS" \
+    --worker-class uvicorn.workers.UvicornWorker \
+    --timeout "$GUNICORN_TIMEOUT" \
+    --log-level info
+else
+  echo "Starting Django development server..."
+  exec uv run python manage.py runserver 0.0.0.0:8000
+fi

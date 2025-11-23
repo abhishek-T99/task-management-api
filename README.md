@@ -70,46 +70,8 @@ cp .env.example .env
 docker compose up --build -d
 ```
 
-3. Apply migrations and create a superuser:
-
-```bash
-docker compose exec app python manage.py migrate
-docker compose exec app python manage.py createsuperuser
-```
-
 Notes
 - Change `.env` values to match your infrastructure (Postgres / Redis / SMTP).
-
----
-
-## Local development (non-Docker)
-
-1. Create and activate a virtualenv, then install dependencies:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
-```
-
-2. Copy and edit `.env` with DB and Redis details:
-
-```bash
-cp .env.example .env
-```
-
-3. Run migrations and the server:
-
-```bash
-python manage.py migrate
-python manage.py runserver
-```
-
-4. Start a local Celery worker (ensure Redis is running):
-
-```bash
-celery -A config.celery worker --loglevel=info
-```
 
 ---
 
