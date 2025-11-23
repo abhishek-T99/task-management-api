@@ -42,6 +42,9 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: ${REDIS_PORT}
       DJANGO_DEBUG: "${DEBUG}"
+      SUPERUSER_EMAIL: ${SUPERUSER_EMAIL}
+      SUPERUSER_PASSWORD: ${SUPERUSER_PASSWORD}
+      SUPERUSER_USERNAME: ${SUPERUSER_USERNAME:-admin}
     volumes:
       - .:/app
       - static_volume:/app/static

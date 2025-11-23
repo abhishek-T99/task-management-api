@@ -29,11 +29,10 @@ RUN uv sync
 # Copy the rest of the project
 COPY . /app
 
-# Make celery worker script executable
-RUN chmod +x /app/scripts/celery_worker.sh
-
-# Make entrypoint executable
+# Make scripts executable
 RUN chmod +x /app/scripts/entrypoint.sh
+RUN chmod +x /app/scripts/celery_worker.sh
+RUN chmod +x /app/scripts/create_superuser.sh
 
 # Expose Django dev server port
 EXPOSE 8000

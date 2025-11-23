@@ -18,6 +18,14 @@ echo "Connected to PostgreSQL!"
 echo "Applying database migrations..."
 uv run python manage.py migrate
 
+# Create superuser if environment variables are set
+if [ -n "${SUPERUSER_EMAIL:-}" ] && [ -n "${SUPERUSER_PASSWORD:-}" ]; then
+    echo "Setting up superuser..."
+    sh /app/scripts/create_superuser.sh
+else
+    echo "Superuser environment variables not set. Skipping superuser creation."
+fi
+
 # Collect static files (only for production)
 if [ "$DJANGO_DEBUG" = "False" ]; then
   echo "Collecting static files..."
